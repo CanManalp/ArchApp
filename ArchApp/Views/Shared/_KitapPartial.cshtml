@@ -10,12 +10,11 @@
 <script>
     var viewBag = "@Model.IsEdit"
     $(document).ready(function () {
-        if (viewBag == "True")
-    {
-        $("#trigger").click()
-    }
+        if (viewBag == "True") {
+            $("#trigger").click()
+        }
 
-});
+    });
 </script>
 @*<script>
         $(document).ready(function(){
@@ -55,17 +54,18 @@
 
     </script>*@
 
-<script>
-    //Arama için
-    $(document).ready(function () {
-        $("#searchBox").on("keyup", function () {
-            var value = $(this).val().toLowerCase();
-            $("#DataTables_Table_0 tbody").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+@*<script>
+        //Arama için
+
+        $(document).ready(function () {
+            $("#searchBox").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#DataTables_Table_0 tbody").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
             });
         });
-    });
-</script>
+    </script>*@
 
 
 <script>
@@ -377,7 +377,7 @@
                 else
                 {
                     <div class="modal-footer d-flex justify-content-center">
-                        <button type="submit" formaction="Repo/AddKitap" class="btn btn-unique">Ekle <i class="fa fa-paper-plane-o ml-1"></i></button>
+                        <button type="submit" formaction="~/Repo/AddKitap" class="btn btn-unique">Ekle <i class="fa fa-paper-plane-o ml-1"></i></button>
                     </div>
                 }
 
@@ -426,8 +426,17 @@
             <div class="dataTables_wrapper">
                 <div class="table-responsive">
                     <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
-                        <div id="DataTables_Table_0_filter" class="dataTables_filter">
-                            <label>Search:<input id="searchBox" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+
+                        <div>
+                            @using (Html.BeginForm("Search", "Home", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <div id="DataTables_Table_0_filter" class="dataTables_filter">
+
+                                    <label>Search:<input id="searchBox" name="prefix" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+                                    <button name="entity" type="submit" value="kitap" class="btn btn-xs btn-dark" >Ara</button>
+                                </div>
+                            }
                         </div>
                         <table class="table table-hover dataTable no-footer" data-table="table-button" data-buttons="['copy', 'csv', 'excel', 'pdf', 'print']" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info">
                             <thead>
@@ -505,4 +514,3 @@
         </div>
     </div>
 </div>
-

@@ -1,5 +1,6 @@
 ﻿using ArchApp.Context;
 using ArchApp.Entities;
+using ArchApp.Models;
 using ArchApp.Repository;
 using ArchApp.ViewModels;
 using System;
@@ -12,17 +13,17 @@ namespace ArchApp.Controllers
 {
     public class HomeController : Controller
     {
+       
+
         // GET: Home
         public ActionResult Index()
         {
             ViewModel vm = new ViewModel();
-
+            
             vm = vm.KitapMainPagePrep();
 
             return View(vm);
-        }
-
-     
+        }     
 
         public JsonResult AltKategoriDoldur(int kategoriId)
         {
@@ -33,15 +34,15 @@ namespace ArchApp.Controllers
 
             return Json(altKategoriler, JsonRequestBehavior.AllowGet);
         }
+
         public ActionResult Kitap()
         {
             ViewModel vm = new ViewModel();
-            vm = vm.KitapMainPagePrep();
-
-          
+            vm = vm.KitapMainPagePrep();          
 
             return View("~/Views/Home/index.cshtml", vm);
         }
+
         [HttpPost]
         public ActionResult Kitap(ViewModel Vm)
         {
@@ -93,6 +94,31 @@ namespace ArchApp.Controllers
             ViewBag.bName = "Sample";
             ViewBag.partial = "~/Views/Shared/_KitapPartial.cshtml";
             return View("~/Views/Home/index.cshtml");
+        }
+        [HttpPost]
+        public ActionResult Search(string prefix, string entity)
+        {
+            const string kitap = "kitap";
+            const string makale = "makale";
+            const string karar = "karar";
+
+            ViewModel vm = new ViewModel();
+
+            switch (entity)
+            {
+                case kitap:
+                    vm = vm.KitapSearchPagePrep();
+                    Search<Kitap> srcK = new Search<Kitap>();
+                    vm.Kitaplar = srcK.MSearch(c => c.Baslik.Contains(prefix));
+                    return View("~/Views/Home/index.cshtml",vm);
+
+                case makale:
+                    Search<Makale> srcM = new Search<Makale>();
+                    srcM.MSearch(c => c.Baslik.Contains(prefix));
+                    break;
+            }
+          
+            return View();
         }
     }
 }

@@ -103,5 +103,37 @@ namespace ArchApp.ViewModels
             vm.IsEdit = true;
             return vm;
         }
+        public ViewModel KitapSearchPagePrep()   //Kitap Eklerkenki dropdownları hazırlar, Tablodan kitap listesini çeker, boş yazarları ve tagleri oluşturur
+        {
+            DbContextApp db = new DbContextApp();
+           
+
+            ViewModel vm = new ViewModel
+            {
+                Tur = new SelectList(db.Turler.Where(c => c.NeTuru == 1), "Id", "Adi"),
+                Ulke = new SelectList(db.Ulkeler.ToList(), "Id", "Dil"),
+                Kategori = new SelectList(db.Kategoriler.ToList(/*c => c.NeKategorisi == 1*/), "Id", "Adi"),
+                EntityName = "Kitap",
+                PViewName = "~/Views/Shared/_KitapPartial.cshtml"
+            };
+
+            Yazar yazar = new Yazar();
+            Tag tag = new Tag();
+
+            for (int i = 0; i < 10; i++)
+            {
+
+                vm.Kitap.Yazarlar.Add(yazar);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+
+                vm.Kitap.Tags.Add(tag);
+            }
+
+            return vm;
+        }
+
     }
 }
