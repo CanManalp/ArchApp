@@ -1,0 +1,51 @@
+﻿@using ArchApp.ViewModels
+@model ViewModel
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutPage1.cshtml";
+
+
+}
+
+<html>
+<body>
+    @*@{
+
+        string partial = ViewBag.partial;
+
+    }*@
+
+    @*<div class="container">
+            <div class="prtm-block">
+                <div class="prtm-content">
+                    <div class="col-sm-4">
+                        <button class="btn btn-success">Ekle</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button class="btn btn-success">Ekle</button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button class="btn btn-success">Ekle</button>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+    @if (Model.PViewName != null)
+    {
+
+        <div class="prtm-content">
+            @Html.Partial(Model.PViewName)
+        </div>
+
+    }
+
+
+
+
+
+</body>
+</html>
+

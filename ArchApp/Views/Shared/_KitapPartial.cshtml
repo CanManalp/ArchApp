@@ -1,0 +1,508 @@
+﻿@using ArchApp.ViewModels
+@model ViewModel
+
+<style>
+    .datepicker {
+        z-index: 9999 !important;
+    }
+</style>
+
+<script>
+    var viewBag = "@Model.IsEdit"
+    $(document).ready(function () {
+        if (viewBag == "True")
+    {
+        $("#trigger").click()
+    }
+
+});
+</script>
+@*<script>
+        $(document).ready(function(){
+            $("#addYazar").click(function(){
+
+                var baslik = document.getElementById("baslik").value;
+                var yazarAdi = document.getElementById("yazarAdi").value;
+                var altBaslik = document.getElementById("altBaslik").value;
+                $.ajax({
+                    url: '@Url.Content("~/Repo/AddYazar/")',
+                    type: 'POST',
+                    dataType: 'application/json',
+                    data: { 'Yazar.Adi': yazarAdi, 'Kitap.Baslik': baslik, 'Kitap.AltBaslik': altBaslik },
+                    success: function (response) {
+                        alert("can");
+                        //$('#modalKitap').modal('toggle');
+                    }
+                });
+
+            })
+        })
+    </script>*@
+
+@*<script>
+            //jQuery.validator.methods["date"] = function (value, element) { return true; }
+
+            $(function () {
+                // This will make every element with the class "date-picker" into a DatePicker element
+                $('.datepicker').datepicker({
+                    dateFormat: 'dd/mm/yy',
+                    autoclose: true,
+                    keyboardNavigation: true,
+                    language: 'tr'
+
+                });
+            })
+
+    </script>*@
+
+<script>
+    //Arama için
+    $(document).ready(function () {
+        $("#searchBox").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#DataTables_Table_0 tbody").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+
+
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, deneme, switchcount = 0;
+        table = document.getElementById("DataTables_Table_0");
+        switching = true;
+
+        // Set the sorting direction to ascending:
+        dir = "asc";
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+                // Start by saying there should be no switching:
+                shouldSwitch = false;
+                /* Get the two elements you want to compare,
+                one from current row and one from the next: */
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /* Check if the two rows should switch place,
+                based on the direction, asc or desc: */
+                if (dir == "asc") {
+
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch
+                and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                // Each time a switch is done, increase this count by 1:
+                switchcount++;
+            } else {
+                /* If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again. */
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+
+<script>
+    function AltKategoriDoldur() {
+        var kategori_Id = $('#kategori').val();
+        $.ajax({
+            url: '/Home/AltKategoriDoldur',
+            type: "GET",
+            dataType: "JSON",
+            data: { kategoriId: kategori_Id },
+            success: function (altKategoriler) {
+                $("#altKategori").html(""); // clear before appending new list
+                $.each(altKategoriler, function (i, altKategoriler) {
+                    $("#altKategori").append(
+                        $('<option></option>').val(altKategoriler.Value).html(altKategoriler.Text));
+                });
+            }
+        });
+    }
+</script>
+
+<script>
+    var i = 1;
+
+    $(document).ready(function () {
+        $("#addYazar").click(function () {
+            //document.getElementById("yAdi1").style.display = '';
+
+            if (i != 10) {
+                document.getElementById(i).style.display = '';
+                i = i + 1;
+            }
+
+        })
+    })
+</script>
+<script>
+    var z = 100;
+
+    $(document).ready(function () {
+        $("#addTag").click(function () {
+            //document.getElementById("yAdi1").style.display = '';
+
+            if (z != 110) {
+                document.getElementById(z).style.display = '';
+                z = z + 1;
+            }
+
+        })
+    })
+</script>
+@if (Model.Notification != null)
+{
+
+    <script>
+        jQuery(document).ready(function ($) {
+
+            $("#KitapKayıtAlert").fadeIn(1500).delay(1500).fadeOut(1500);
+            //$("#sevkAlert").fadeIn(2000).delay(1000).slideUp(2000);
+
+        });
+
+    </script>
+}
+
+
+
+<div class="modal fade" id="modalKitap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">@Model.EntityName</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("DuzenleKitap", "Repo", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="modal-body mx-3">
+                    <div class="col-sm-6">
+                        <div class="md-form mb-5" style="display:none">
+
+                            @Html.TextBoxFor(c => c.Kitap.Id, new { @class = "form-control validate" })
+
+
+                        </div>
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.Baslik)
+                            @Html.TextBoxFor(c => c.Kitap.Baslik, new { @class = "form-control validate" })
+
+                            @*<label data-error="wrong" data-success="right" for="form29">Başlık</label>
+                                <input type="email" id="form29" class="form-control validate">*@
+                        </div>
+
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.AltBaslik)
+                            @Html.TextBoxFor(c => c.Kitap.AltBaslik, new { @class = "form-control validate" })
+
+
+                        </div>
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.YayinYeri)
+                            @Html.TextBoxFor(c => c.Kitap.YayinYeri, new { @class = "form-control validate" })
+
+                        </div>
+
+
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.YayinEvi)
+                            @Html.TextBoxFor(c => c.Kitap.YayinEvi, new { @class = "form-control validate" })
+
+                        </div>
+
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.Basi)
+                            @Html.TextBoxFor(c => c.Kitap.Basi, new { @class = "form-control validate" })
+
+                        </div>
+
+                        <div class="md-form mb-5">
+
+                            @Html.LabelFor(c => c.Kitap.YayinYili)
+                            @Html.TextBoxFor(c => c.Kitap.YayinYili, new { @class = "form-control validate" })
+                        </div>
+
+                        <div class="md-form mb-5">
+                            @Html.Label("Yazar Adı")
+                            @Html.TextBoxFor(c => c.Kitap.Yazarlar[0].Adi, new { @class = "form-control validate" })
+                            @Html.TextBoxFor(c => c.Kitap.Yazarlar[0].Id, new { @class = "form-control validate", @style = "display: none;" })
+
+                        </div>
+
+                        @for (int i = 1; i < Model.Kitap.Yazarlar.Count; i++)
+                        {
+                            <div class="md-form mb-5" id=@i style="display: none;">
+                                @Html.Label("Yazar Adı")
+                                @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Adi, new { @class = "form-control validate" })
+
+                            </div>
+                            @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Id, new { @class = "form-control validate", @style = "display: none;" })
+                        }
+
+
+
+                        <button type="button" id="addYazar" class="btn btn-xs btn-success">+</button>
+
+
+                    </div>
+                    <div class="col-sm-6">
+
+                        <div class="md-form mb-5">
+                            @Html.Label("Tür")
+                            @Html.DropDownListFor(c => c.Kitap.TurId, Model.Tur, "Lütfen Seçiniz", new { @class = "form-control dropdown" })
+
+
+                        </div>
+
+                        <div class="md-form mb-5">
+
+                            @Html.LabelFor(c => c.Kitap.Ceviren)
+                            @Html.TextBoxFor(c => c.Kitap.Ceviren, new { @class = "form-control validate" })
+                        </div>
+
+
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.WebAdresi)
+                            @Html.TextBoxFor(c => c.Kitap.WebAdresi, new { @class = "form-control validate" })
+
+                        </div>
+
+                        @*<div class="input-group date datetimepicker-date" data-date-format="dd MM yyyy" data-date="" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd">
+                                <input class="form-control" type="text" value="">
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-remove base-dark"></span></span>
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar base-dark"></span></span>
+                            </div>*@
+                        <div id="datepicker-div" class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.ErisimTarihi)
+                            @Html.TextBoxFor(c => c.Kitap.ErisimTarihi, new { @type = "date", @class = "datepicker form-control validate", @id = "datepicker", @name = "datepicker" })
+
+                        </div>
+
+                        <div class="md-form mb-5">
+                            @Html.Label("Dil")
+                            @Html.DropDownListFor(c => c.Kitap.UlkeId, Model.Ulke, "Lütfen Seçiniz", new { @class = "form-control dropdown" })
+
+                        </div>
+
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.AltKategori.Kategori.Adi)
+                            @Html.DropDownListFor(c => c.Kitap.AltKategori.Kategori.Id, Model.Kategori, "Lütfen Seçiniz", new { @class = "form-control dropdown", @onchange = "AltKategoriDoldur()", @id = "kategori" })
+
+                        </div>
+                        @if (Model.IsEdit)
+                        {
+                            <div class="md-form mb-5">
+                                @Html.Label("Alt Kategori")
+                                @Html.DropDownListFor(c => c.Kitap.AltKategoriId, Model.AltKategori, new { @class = "form-control dropdown", @id = "altKategori" })
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="md-form mb-5">
+                                @Html.Label("Alt Kategori")
+                                @Html.DropDownListFor(c => c.Kitap.AltKategoriId, Enumerable.Empty<SelectListItem>(), new { @class = "form-control dropdown", @id = "altKategori" })
+
+                            </div>
+                        }
+
+                        <div class="md-form mb-5">
+                            @Html.LabelFor(c => c.Kitap.Isbn)
+                            @Html.TextBoxFor(c => c.Kitap.Isbn, new { @class = "form-control validate" })
+
+                        </div>
+                        <div class="md-form mb-5">
+                            @Html.Label("Etiket")
+                            @Html.TextBoxFor(c => c.Kitap.Tags[0].Etiket, new { @class = "form-control validate" })
+                            @Html.TextBoxFor(c => c.Kitap.Tags[0].Id, new { @class = "form-control validate", @style = "display: none;" })
+
+                        </div>
+
+                        @for (int z = 1; z < Model.Kitap.Tags.Count; z++)
+                        {
+                            <div class="md-form mb-5" id=@(z+99) style="display: none;">
+                                @Html.Label("Etiket")
+                                @Html.TextBoxFor(c => c.Kitap.Tags[z].Etiket, new { @class = "form-control validate" })
+
+                            </div>
+                            @Html.TextBoxFor(c => c.Kitap.Tags[z].Id, new { @class = "form-control validate", @style = "display: none;" })
+                        }
+
+                        <button type="button" id="addTag" class="btn btn-xs btn-success">+</button>
+                    </div>
+
+                    @*<div class="md-form">
+                            <label data-error="wrong" data-success="right" for="form8">Notlar</label>
+                            <textarea type="text" id="form8" class="md-textarea form-control" rows="4"></textarea>
+
+                        </div>*@
+                </div>
+
+                if (Model.IsEdit)
+                {
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="submit" class="btn btn-unique">Düzenle <i class="fa fa-paper-plane-o ml-1"></i></button>
+                    </div>
+                }
+                else
+                {
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="submit" formaction="Repo/AddKitap" class="btn btn-unique">Ekle <i class="fa fa-paper-plane-o ml-1"></i></button>
+                    </div>
+                }
+
+            }
+            }
+
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <button id="trigger" class="btn btn-success btn-rounded mb-4" data-toggle="modal" data-target="#modalKitap">Yeni @Model.EntityName<div></div></button>
+    @*<button type="button" id="myBtn" data-toggle="modal" style="display: none;" data-target="#modalKitap"></button>*@
+</div>
+<br />
+
+
+
+
+
+<div class="data-table-style">
+    <div class="prtm-block pos-relative">
+        <div class="prtm-block-title mrgn-b-lg">
+            <div class="caption">
+                <h3 class="text-capitalize">Kitaplar</h3>
+            </div>
+            <div class="contextual-link">
+                <div class="dropdown display-ib">
+                    <a href="javascript:;" class="mrgn-l-xs" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false"><i class="fa fa-cog fa-lg base-dark"></i></a>
+                    <ul class="dropdown-menu dropdown-arrow dropdown-menu-right">
+                        <li>
+                            <a href="javascript:;"> <i class="fa fa-eye"></i> <span class="mrgn-l-sm">View</span> </a>
+                        </li>
+                        <li>
+                            <a href="javascript:;"> <i class="fa fa-pencil"></i> <span class="mrgn-l-sm">Edit </span> </a>
+                        </li>
+                        <li>
+                            <a href="#"> <i class="fa fa-trash-o"></i> <span class="mrgn-l-sm">Delete</span> </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="prtm-block-content">
+            <div class="dataTables_wrapper">
+                <div class="table-responsive">
+                    <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                        <div id="DataTables_Table_0_filter" class="dataTables_filter">
+                            <label>Search:<input id="searchBox" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+                        </div>
+                        <table class="table table-hover dataTable no-footer" data-table="table-button" data-buttons="['copy', 'csv', 'excel', 'pdf', 'print']" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info">
+                            <thead>
+                                <tr role="row">
+                                    <th class="sorting" id="sortTable(0)" onclick="sortTable(0)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Name: activate to sort column ascending" style="width: 191px;" aria-sort="descending">Başlık</th>
+                                    <th class="sorting" id="sortTable(1)" onclick="sortTable(1)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 185px;">Yazar</th>
+                                    <th class="sorting" id="sortTable(2)" onclick="sortTable(2)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Join date: activate to sort column ascending" style="width: 171px;">Çeviren</th>
+                                    <th class="sorting" id="sortTable(3)" onclick="sortTable(3)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 159px;">Yayın Yeri</th>
+                                    <th class="sorting" id="sortTable(4)" onclick="sortTable(4)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 86px;">Yayın Yılı</th>
+                                    <th class="sorting" id="sortTable(5)" onclick="sortTable(5)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending" style="width: 157px;">Bası</th>
+                                    <th class="sorting" id="sortTable(6)" onclick="sortTable(6)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 124px;">Dili</th>
+                                    <th class="sorting" id="sortTable(7)" onclick="sortTable(7)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending" style="width: 157px;">Türü</th>
+                                    <th class="sorting" id="sortTable(8)" onclick="sortTable(8)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending" style="width: 157px;">Erişim Tarihi</th>
+                                    <th class="sorting" id="sortTable(9)" onclick="sortTable(9)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 124px;">İşlemler</th>
+                                </tr>
+
+                            </thead>
+
+                            @if (Model != null)
+                            {
+
+                                foreach (var item in Model.Kitaplar)
+                                {
+                                    <tbody>
+                                        <tr role="row" class="odd">
+                                            <td class="sorting">@item.Baslik</td>
+                                            <td>@item.Yazarlar.FirstOrDefault().Adi</td>
+                                            <td>@item.Ceviren</td>
+                                            <td>@item.YayinYeri</td>
+                                            <td>@item.YayinYili</td>
+                                            <td>@item.Basi</td>
+                                            <td>@item.Ulke.Dil</td>
+                                            <td>@item.Tur.Adi</td>
+                                            <td>
+                                                @if (item.ErisimTarihi != null)
+                                                {
+                                                    @item.ErisimTarihi.Value.ToString("dd-MM-yyyy")
+                                                }
+                                                else
+                                                {
+                                                    @item.ErisimTarihi
+                                                }
+
+                                            </td>
+                                            <td>
+                                                <a href="/Repo/DuzenleKitap/@item.Id"><i class="fa fa-cog fa-lg base-dark" aria-hidden="true"></i></a>
+                                                <a href="/Repo/DeletKitap/@item.Id" class="mrgn-l-sm"><i class="fa fa-times fa-lg text-danger" aria-hidden="true"></i></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                }
+
+                            }
+
+                        </table>
+                        <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
+                            Showing 1 to 10 of 11 entries
+                        </div>
+                        <div class="dataTables_paginate paging_simple_numbers paginate-data" id="DataTables_Table_0_paginate">
+                            <ul class="pagination">
+                                <li class="paginate_button previous disabled" id="DataTables_Table_0_previous"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0">Previous</a></li>
+                                <li class="paginate_button active"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="1" tabindex="0">1</a></li>
+                                <li class="paginate_button "><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="2" tabindex="0">2</a></li>
+                                <li class="paginate_button next" id="DataTables_Table_0_next"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="3" tabindex="0">Next</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="@Model.Alert" style="display: none;" id="KitapKayıtAlert" role="alert">@Model.Notification</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

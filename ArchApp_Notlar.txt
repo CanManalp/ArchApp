@@ -1,0 +1,2 @@
+Duplicate kontrolü, bu kitap var eklemek istediðinizden emin misiniz?
+Yazar Duplicate Kontrolü veya autocomplete
