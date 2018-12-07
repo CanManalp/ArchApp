@@ -13,17 +13,17 @@ namespace ArchApp.Controllers
 {
     public class HomeController : Controller
     {
-       
+
 
         // GET: Home
         public ActionResult Index()
         {
             ViewModel vm = new ViewModel();
-            
+
             vm = vm.KitapMainPagePrep();
 
             return View(vm);
-        }     
+        }
 
         public JsonResult AltKategoriDoldur(int kategoriId)
         {
@@ -38,7 +38,7 @@ namespace ArchApp.Controllers
         public ActionResult Kitap()
         {
             ViewModel vm = new ViewModel();
-            vm = vm.KitapMainPagePrep();          
+            vm = vm.KitapMainPagePrep();
 
             return View("~/Views/Home/index.cshtml", vm);
         }
@@ -109,15 +109,28 @@ namespace ArchApp.Controllers
                 case kitap:
                     vm = vm.KitapSearchPagePrep();
                     Search<Kitap> srcK = new Search<Kitap>();
-                    vm.Kitaplar = srcK.MSearch(c => c.Baslik.Contains(prefix));
-                    return View("~/Views/Home/index.cshtml",vm);
+                    //vm.Kitaplar = srcK.MSearch(c => c.Baslik.Contains(prefix));
+
+                    DbContextApp db = new DbContextApp();
+                    vm.Kitaplar = db.Yazarlar.Where(yzrlr => yzrlr.Kitap.Baslik.Contains(prefix) ||
+                                                             yzrlr.Kitap.AltBaslik.Contains(prefix) ||
+                                                             yzrlr.Kitap.YayinEvi.Contains(prefix) ||
+                                                             yzrlr.Kitap.YayinYeri.Contains(prefix) ||
+                                                             yzrlr.Kitap.Ceviren.Contains(prefix) ||
+                                                             yzrlr.Kitap.Tur.Adi.Contains(prefix) ||
+                                                             yzrlr.Adi.Contains(prefix))
+                                                            .Select(c => c.Kitap)
+                                                            .GroupBy(ktp => ktp.Id)
+                                                            .Select(g => g.FirstOrDefault()).ToList();
+
+                    return View("~/Views/Home/index.cshtml", vm);
 
                 case makale:
                     Search<Makale> srcM = new Search<Makale>();
                     srcM.MSearch(c => c.Baslik.Contains(prefix));
                     break;
             }
-          
+
             return View();
         }
     }
