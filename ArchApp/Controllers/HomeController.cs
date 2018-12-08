@@ -112,16 +112,57 @@ namespace ArchApp.Controllers
                     //vm.Kitaplar = srcK.MSearch(c => c.Baslik.Contains(prefix));
 
                     DbContextApp db = new DbContextApp();
-                    vm.Kitaplar = db.Yazarlar.Where(yzrlr => yzrlr.Kitap.Baslik.Contains(prefix) ||
-                                                             yzrlr.Kitap.AltBaslik.Contains(prefix) ||
-                                                             yzrlr.Kitap.YayinEvi.Contains(prefix) ||
-                                                             yzrlr.Kitap.YayinYeri.Contains(prefix) ||
-                                                             yzrlr.Kitap.Ceviren.Contains(prefix) ||
-                                                             yzrlr.Kitap.Tur.Adi.Contains(prefix) ||
-                                                             yzrlr.Adi.Contains(prefix))
-                                                            .Select(c => c.Kitap)
-                                                            .GroupBy(ktp => ktp.Id)
-                                                            .Select(g => g.FirstOrDefault()).ToList();
+                    //var list = db.Yazarlar.Join(db.Etiketler, yzrlr => yzrlr.KitapId, etktlr => etktlr.KitapId, (yzrlr, etktlr) => new { Kitap = yzrlr.Kitap,
+                    //                                                                                                                     YazarAdi = yzrlr.Adi,
+                    //                                                                                                                     Etiket = etktlr.Etiket,
+                    //                                                                                                                     KitapId = yzrlr.KitapId}).ToList();
+
+                    //var yzrlrEtiketlerTbl = from e in db.Etiketler
+                    //                        join y in db.Yazarlar
+
+                    //                        select new
+                    //                        {
+                    //                            y,
+                    //                            e
+
+                    //                        };
+
+                    //foreach (var item in yzrlrEtiketlerTbl)
+                    //{
+                    //    var etiket = item.e.Etiket;
+
+                    //    var yazarAdi = item.y.Adi;
+                    //}
+
+
+
+                    //vm.Kitaplar = db.Yazarlar.Where(yzrlr => yzrlr.Kitap.Baslik.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.AltBaslik.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.YayinEvi.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.YayinYeri.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.Ceviren.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.Tur.Adi.Contains(prefix) ||
+                    //                                         yzrlr.Adi.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.AltKategori.Kategori.Adi.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.AltKategori.Adi.Contains(prefix) ||
+                    //                                         yzrlr.Kitap.Tags.Select(c=> c.Etiket).Contains(prefix))
+                    //                                        .Select(c => c.Kitap)                                         //GROUP BY kullanımı sonrası Igrouping'i List'e çevirmek için
+                    //                                        .GroupBy(ktp => ktp.Id)
+                    //                                        .Select(g => g.FirstOrDefault()).ToList();
+
+                    vm.Kitaplar = db.Kitaplar.Where(ktp => ktp.Baslik.Contains(prefix) ||
+                                         ktp.AltBaslik.Contains(prefix) ||
+                                         ktp.YayinEvi.Contains(prefix) ||
+                                         ktp.YayinYeri.Contains(prefix) ||
+                                         ktp.Ceviren.Contains(prefix) ||
+                                         ktp.Tur.Adi.Contains(prefix) ||
+                                         ktp.Yazarlar.Any(c => c.Adi.Contains(prefix)) ||   //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
+                                         ktp.AltKategori.Kategori.Adi.Contains(prefix) ||
+                                         ktp.AltKategori.Adi.Contains(prefix) ||
+                                         ktp.Tags.Any(c => c.Etiket.Contains(prefix))).ToList();      //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
+
+
+
 
                     return View("~/Views/Home/index.cshtml", vm);
 
