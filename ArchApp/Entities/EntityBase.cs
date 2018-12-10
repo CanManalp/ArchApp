@@ -11,7 +11,8 @@ namespace ArchApp.Entities
         [StringLength(500)]
         public string Notlar { get; set; }
         [StringLength(75)]
-        public string WebAdresi { get; set; }       
+        public string WebAdresi { get; set; }
+
         public DateTime? ErisimTarihi { get; set; }
 
         //public int UlkeId { get; set; }

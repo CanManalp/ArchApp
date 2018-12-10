@@ -1,4 +1,6 @@
 ﻿@using ArchApp.ViewModels
+@using PagedList
+@using PagedList.Mvc
 @model ViewModel
 
 <style>
@@ -84,7 +86,7 @@
             rows = table.rows;
             /* Loop through all table rows (except the
             first, which contains table headers): */
-            for (i = 1; i < (rows.length - 1); i++) {
+            for (i = 1; i < (rows.length - 1) ; i++) {
                 // Start by saying there should be no switching:
                 shouldSwitch = false;
                 /* Get the two elements you want to compare,
@@ -304,7 +306,7 @@
                             </div>*@
                         <div id="datepicker-div" class="md-form mb-5">
                             @Html.LabelFor(c => c.Kitap.ErisimTarihi)
-                            @Html.TextBoxFor(c => c.Kitap.ErisimTarihi, new { @type = "date", @class = "datepicker form-control validate", @id = "datepicker", @name = "datepicker" })
+                            @Html.TextBoxFor(c => c.Kitap.ErisimTarihi, "{0:yyyy-MM-dd}", new { @type = "date", @class = "datepicker form-control validate" })
 
                         </div>
 
@@ -432,9 +434,15 @@
                             {
                                 @Html.AntiForgeryToken()
                                 <div id="DataTables_Table_0_filter" class="dataTables_filter">
-
-                                    <label>Search:<input id="searchBox" name="prefix" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
-                                    <button name="entity" type="submit" value="kitap" class="btn btn-xs btn-dark" >Ara</button>
+                                    @if (ViewBag.currentPrefix != null)
+                                    {
+                                        <label>Search:<input id="searchBox" name="prefix" type="search" value=@ViewBag.currentPrefix class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+                                    }
+                                    else
+                                    {
+                                        <label>Search:<input id="searchBox" name="prefix" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+                                    }
+                                    <button name="entity" type="submit" value="kitap" class="btn btn-xs btn-dark">Ara</button>
                                 </div>
                             }
                         </div>
@@ -455,7 +463,7 @@
 
                             </thead>
 
-                            @if (Model != null)
+                            @if (Model.Kitaplar != null)
                             {
 
                                 foreach (var item in Model.Kitaplar)
@@ -492,20 +500,24 @@
                             }
 
                         </table>
-                        <div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
-                            Showing 1 to 10 of 11 entries
-                        </div>
-                        <div class="dataTables_paginate paging_simple_numbers paginate-data" id="DataTables_Table_0_paginate">
-                            <ul class="pagination">
-                                <li class="paginate_button previous disabled" id="DataTables_Table_0_previous"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0">Previous</a></li>
-                                <li class="paginate_button active"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="1" tabindex="0">1</a></li>
-                                <li class="paginate_button "><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="2" tabindex="0">2</a></li>
-                                <li class="paginate_button next" id="DataTables_Table_0_next"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="3" tabindex="0">Next</a></li>
-                            </ul>
+                        @*<div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">
+                                Showing 1 to 10 of 11 entries
+                            </div>
+                            <div class="dataTables_paginate paging_simple_numbers paginate-data" id="DataTables_Table_0_paginate">
+                                <ul class="pagination">
+                                    <li class="paginate_button previous disabled" id="DataTables_Table_0_previous"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0">Previous</a></li>
+                                    <li class="paginate_button active"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="1" tabindex="0">1</a></li>
+                                    <li class="paginate_button "><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="2" tabindex="0">2</a></li>
+                                    <li class="paginate_button next" id="DataTables_Table_0_next"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="3" tabindex="0">Next</a></li>
+                                </ul>
+                            </div>*@
+                        <div class="pagedList">
+                            @Html.PagedListPager(Model.Kitaplar, pageNumber => Url.Action("Search", "Home", new { pageNumber, entity = "kitap", currentPrefix = ViewBag.currentPrefix }))
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col">
                     <div class="@Model.Alert" style="display: none;" id="KitapKayıtAlert" role="alert">@Model.Notification</div>

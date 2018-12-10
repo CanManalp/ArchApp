@@ -1,13 +1,11 @@
 ﻿using ArchApp.Context;
 using ArchApp.Entities;
 using ArchApp.Models;
-using ArchApp.Repository;
 using ArchApp.ViewModels;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using PagedList;
 
 namespace ArchApp.Controllers
 {
@@ -95,8 +93,8 @@ namespace ArchApp.Controllers
             ViewBag.partial = "~/Views/Shared/_KitapPartial.cshtml";
             return View("~/Views/Home/index.cshtml");
         }
-        [HttpPost]
-        public ActionResult Search(string prefix, string entity)
+        //[HttpPost]
+        public ActionResult Search(string prefix, string currentPrefix, string entity,int? pageNumber)
         {
             const string kitap = "kitap";
             const string makale = "makale";
@@ -104,14 +102,21 @@ namespace ArchApp.Controllers
 
             ViewModel vm = new ViewModel();
 
+            if (currentPrefix!=null)
+            {
+                prefix = currentPrefix;
+            }
+
             switch (entity)
             {
                 case kitap:
                     vm = vm.KitapSearchPagePrep();
-                    Search<Kitap> srcK = new Search<Kitap>();
+                    //Search<Kitap> srcK = new Search<Kitap>();
                     //vm.Kitaplar = srcK.MSearch(c => c.Baslik.Contains(prefix));
 
                     DbContextApp db = new DbContextApp();
+
+                    #region Alternatif Sorgu Örnekleri
                     //var list = db.Yazarlar.Join(db.Etiketler, yzrlr => yzrlr.KitapId, etktlr => etktlr.KitapId, (yzrlr, etktlr) => new { Kitap = yzrlr.Kitap,
                     //                                                                                                                     YazarAdi = yzrlr.Adi,
                     //                                                                                                                     Etiket = etktlr.Etiket,
@@ -150,18 +155,29 @@ namespace ArchApp.Controllers
                     //                                        .GroupBy(ktp => ktp.Id)
                     //                                        .Select(g => g.FirstOrDefault()).ToList();
 
-                    vm.Kitaplar = db.Kitaplar.Where(ktp => ktp.Baslik.Contains(prefix) ||
-                                         ktp.AltBaslik.Contains(prefix) ||
-                                         ktp.YayinEvi.Contains(prefix) ||
-                                         ktp.YayinYeri.Contains(prefix) ||
-                                         ktp.Ceviren.Contains(prefix) ||
-                                         ktp.Tur.Adi.Contains(prefix) ||
-                                         ktp.Yazarlar.Any(c => c.Adi.Contains(prefix)) ||   //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
-                                         ktp.AltKategori.Kategori.Adi.Contains(prefix) ||
-                                         ktp.AltKategori.Adi.Contains(prefix) ||
-                                         ktp.Tags.Any(c => c.Etiket.Contains(prefix))).ToList();      //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
 
+                    #endregion
 
+                    if (prefix!=null)
+                    {
+                        ViewBag.currentPrefix = prefix;
+                        vm.Kitaplar = db.Kitaplar.Where(ktp => ktp.Baslik.Contains(prefix) ||
+                                        ktp.AltBaslik.Contains(prefix) ||
+                                        ktp.YayinEvi.Contains(prefix) ||
+                                        ktp.YayinYeri.Contains(prefix) ||
+                                        ktp.Ceviren.Contains(prefix) ||
+                                        ktp.Tur.Adi.Contains(prefix) ||
+                                        ktp.Yazarlar.Any(c => c.Adi.Contains(prefix)) ||   //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
+                                        ktp.AltKategori.Kategori.Adi.Contains(prefix) ||
+                                        ktp.AltKategori.Adi.Contains(prefix) ||
+                                        ktp.Tags.Any(c => c.Etiket.Contains(prefix))).OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);      //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
+
+                    }
+                    else
+                    {
+                        vm.Kitaplar = db.Kitaplar.OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);
+                    }
+                    
 
 
                     return View("~/Views/Home/index.cshtml", vm);
@@ -172,7 +188,7 @@ namespace ArchApp.Controllers
                     break;
             }
 
-            return View();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
