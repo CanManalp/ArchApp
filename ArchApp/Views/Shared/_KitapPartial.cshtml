@@ -70,7 +70,7 @@
     </script>*@
 
 
-<script>
+@*<script>
     function sortTable(n) {
         var table, rows, switching, i, x, y, shouldSwitch, dir, deneme, switchcount = 0;
         table = document.getElementById("DataTables_Table_0");
@@ -128,7 +128,7 @@
             }
         }
     }
-</script>
+</script>*@
 
 <script>
     function AltKategoriDoldur() {
@@ -434,9 +434,9 @@
                             {
                                 @Html.AntiForgeryToken()
                                 <div id="DataTables_Table_0_filter" class="dataTables_filter">
-                                    @if (ViewBag.currentPrefix != null)
+                                    @if (!string.IsNullOrEmpty(Model.CurrentPrefix))
                                     {
-                                        <label>Search:<input id="searchBox" name="prefix" type="search" value=@ViewBag.currentPrefix class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+                                        <label>Search:<input id="searchBox" name="prefix" type="search" value=@Model.CurrentPrefix class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
                                     }
                                     else
                                     {
@@ -449,16 +449,17 @@
                         <table class="table table-hover dataTable no-footer" data-table="table-button" data-buttons="['copy', 'csv', 'excel', 'pdf', 'print']" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info">
                             <thead>
                                 <tr role="row">
-                                    <th class="sorting" id="sortTable(0)" onclick="sortTable(0)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Name: activate to sort column ascending" style="width: 191px;" aria-sort="descending">Başlık</th>
-                                    <th class="sorting" id="sortTable(1)" onclick="sortTable(1)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 185px;">Yazar</th>
-                                    <th class="sorting" id="sortTable(2)" onclick="sortTable(2)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Join date: activate to sort column ascending" style="width: 171px;">Çeviren</th>
-                                    <th class="sorting" id="sortTable(3)" onclick="sortTable(3)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 159px;">Yayın Yeri</th>
-                                    <th class="sorting" id="sortTable(4)" onclick="sortTable(4)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 86px;">Yayın Yılı</th>
-                                    <th class="sorting" id="sortTable(5)" onclick="sortTable(5)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending" style="width: 157px;">Bası</th>
-                                    <th class="sorting" id="sortTable(6)" onclick="sortTable(6)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 124px;">Dili</th>
-                                    <th class="sorting" id="sortTable(7)" onclick="sortTable(7)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending" style="width: 157px;">Türü</th>
-                                    <th class="sorting" id="sortTable(8)" onclick="sortTable(8)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Date: activate to sort column ascending" style="width: 157px;">Erişim Tarihi</th>
-                                    <th class="sorting" id="sortTable(9)" onclick="sortTable(9)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 124px;">İşlemler</th>
+                                  <th class="sorting">@Html.ActionLink("Başlık", "Search", "Home", new { sortOrder = Model.BaslikSortPram??"Baslik_Descending", entity = "kitap", currentPrefix=Model.CurrentPrefix },null)</th>
+                                    @*<th class="sorting" id="sortTable(0)" onclick="sortTable(0)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 191px;" aria-sort="descending">Başlık</th>*@
+                                    <th class="sorting" id="sortTable(1)" onclick="sortTable(1)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 185px;">Yazar</th>
+                                    <th class="sorting" id="sortTable(2)" onclick="sortTable(2)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 171px;">Çeviren</th>
+                                    <th class="sorting" id="sortTable(3)" onclick="sortTable(3)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 159px;">Yayın Yeri</th>
+                                    <th class="sorting" id="sortTable(4)" onclick="sortTable(4)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 86px;">Yayın Yılı</th>
+                                    <th class="sorting" id="sortTable(5)" onclick="sortTable(5)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Bası</th>
+                                    <th class="sorting" id="sortTable(6)" onclick="sortTable(6)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 124px;">Dili</th>
+                                    <th class="sorting" id="sortTable(7)" onclick="sortTable(7)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Türü</th>
+                                    <th class="sorting" id="sortTable(8)" onclick="sortTable(8)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Erişim Tarihi</th>
+                                    <th class="sorting" id="sortTable(9)" onclick="sortTable(9)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 124px;">İşlemler</th>
                                 </tr>
 
                             </thead>
@@ -512,7 +513,7 @@
                                 </ul>
                             </div>*@
                         <div class="pagedList">
-                            @Html.PagedListPager(Model.Kitaplar, pageNumber => Url.Action("Search", "Home", new { pageNumber, entity = "kitap", currentPrefix = ViewBag.currentPrefix }))
+                            @Html.PagedListPager(Model.Kitaplar, pageNumber => Url.Action("Search", "Home", new { pageNumber, entity = "kitap", currentPrefix = Model.CurrentPrefix, currentSortOrder = Model.CurrentSortOrder }))
                         </div>
                     </div>
                 </div>

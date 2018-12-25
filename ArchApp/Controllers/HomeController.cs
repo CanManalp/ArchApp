@@ -94,17 +94,25 @@ namespace ArchApp.Controllers
             return View("~/Views/Home/index.cshtml");
         }
         //[HttpPost]
-        public ActionResult Search(string prefix, string currentPrefix, string entity,int? pageNumber)
+        public ActionResult Search(string prefix, string currentPrefix, string entity, int? pageNumber, string sortOrder, string currentSortOrder)
         {
             const string kitap = "kitap";
             const string makale = "makale";
             const string karar = "karar";
+            const string Baslik_Ascending = "Baslik_Ascending";
+            const string Baslik_Descending = "Baslik_Descending";
 
             ViewModel vm = new ViewModel();
+
+            
 
             if (currentPrefix!=null)
             {
                 prefix = currentPrefix;
+            }
+            if (currentSortOrder!=null)
+            {
+                sortOrder = currentSortOrder;
             }
 
             switch (entity)
@@ -114,7 +122,14 @@ namespace ArchApp.Controllers
                     //Search<Kitap> srcK = new Search<Kitap>();
                     //vm.Kitaplar = srcK.MSearch(c => c.Baslik.Contains(prefix));
 
+                    if (vm.BaslikSortPram == null)
+                    {
+                        vm.BaslikSortPram = Baslik_Ascending;
+                    }
+                    vm.CurrentPrefix = prefix;
+                    vm.CurrentSortOrder = sortOrder;
                     DbContextApp db = new DbContextApp();
+                    IQueryable<Kitap> kitaplar;
 
                     #region Alternatif Sorgu Örnekleri
                     //var list = db.Yazarlar.Join(db.Etiketler, yzrlr => yzrlr.KitapId, etktlr => etktlr.KitapId, (yzrlr, etktlr) => new { Kitap = yzrlr.Kitap,
@@ -160,8 +175,8 @@ namespace ArchApp.Controllers
 
                     if (prefix!=null)
                     {
-                        ViewBag.currentPrefix = prefix;
-                        vm.Kitaplar = db.Kitaplar.Where(ktp => ktp.Baslik.Contains(prefix) ||
+                        
+                       kitaplar = db.Kitaplar.Where(ktp => ktp.Baslik.Contains(prefix) ||
                                         ktp.AltBaslik.Contains(prefix) ||
                                         ktp.YayinEvi.Contains(prefix) ||
                                         ktp.YayinYeri.Contains(prefix) ||
@@ -170,15 +185,33 @@ namespace ArchApp.Controllers
                                         ktp.Yazarlar.Any(c => c.Adi.Contains(prefix)) ||   //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
                                         ktp.AltKategori.Kategori.Adi.Contains(prefix) ||
                                         ktp.AltKategori.Adi.Contains(prefix) ||
-                                        ktp.Tags.Any(c => c.Etiket.Contains(prefix))).OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);      //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
+                                        ktp.Tags.Any(c => c.Etiket.Contains(prefix)));      //ÇOK ÖNEMLİ One To Many ilişki de kitaptan yazarlara gidip yazarlar tablosunda Filter
 
+                        //vm.Kitaplar = kitaplar.OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);
                     }
                     else
                     {
-                        vm.Kitaplar = db.Kitaplar.OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);
+                        kitaplar = from k in db.Kitaplar        //Tolist çekmiş sayılmıyoruz dolayısıyla performans sorunu yaşanmaz
+                                   select k;
                     }
-                    
 
+                    switch (sortOrder)
+                    {
+                        case Baslik_Ascending:
+
+                            vm.Kitaplar = kitaplar.OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);
+                            vm.BaslikSortPram = Baslik_Descending;
+                            break;
+                        case Baslik_Descending:
+
+                            vm.Kitaplar = kitaplar.OrderByDescending(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);
+                            break;
+                        default:
+                            vm.Kitaplar= kitaplar.OrderBy(c => c.Baslik).ToPagedList(pageNumber ?? 1, vm.PageSize);
+                            vm.BaslikSortPram = Baslik_Ascending;
+                            break;
+                    }
+                  
 
                     return View("~/Views/Home/index.cshtml", vm);
 

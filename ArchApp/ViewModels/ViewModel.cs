@@ -14,6 +14,9 @@ namespace ArchApp.ViewModels
     {
         public string EntityName { get; set; }
         public string PViewName { get; set; }
+        public string BaslikSortPram { get; set; }
+        public string CurrentSortOrder { get; set; }
+        public string CurrentPrefix { get; set; }
         public int? PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 4;
         public bool IsEdit { get; set; }
@@ -37,6 +40,7 @@ namespace ArchApp.ViewModels
 
         public ViewModel KitapMainPagePrep()   //Kitap Eklerkenki dropdownları hazırlar, Tablodan kitap listesini çeker, boş yazarları ve tagleri oluşturur
         {
+            
             DbContextApp db = new DbContextApp();
             db.Database.CreateIfNotExists();
 
@@ -48,7 +52,8 @@ namespace ArchApp.ViewModels
                 Ulke = new SelectList(db.Ulkeler.ToList(), "Id", "Dil"),
                 Kategori = new SelectList(db.Kategoriler.Where(c => c.NeKategorisi == 1), "Id", "Adi"),
                 EntityName = "Kitap",
-                PViewName = "~/Views/Shared/_KitapPartial.cshtml"
+                PViewName = "~/Views/Shared/_KitapPartial.cshtml",
+                BaslikSortPram = "Baslik_Ascending"
             };
             
             Yazar yazar = new Yazar();
@@ -84,7 +89,8 @@ namespace ArchApp.ViewModels
                 Tur = new SelectList(db.Turler.Where(c => c.NeTuru == 1), "Id", "Adi", kitap.TurId),     //Tur Dropdown
                 Ulke = new SelectList(db.Ulkeler.ToList(), "Id", "Dil"),     //Ülke Dropdown
                 Kategori = new SelectList(db.Kategoriler.Where(c => c.NeKategorisi == 1), "Id", "Adi", kitap.AltKategori.KategoriId),   //Kategori DropDown
-                AltKategori = new SelectList(db.AltKategoriler.Where(c => c.Id == kitap.AltKategoriId), "Id", "Adi", kitap.AltKategoriId)   //AltKategori DropDown
+                AltKategori = new SelectList(db.AltKategoriler.Where(c => c.Id == kitap.AltKategoriId), "Id", "Adi", kitap.AltKategoriId),   //AltKategori DropDown
+                
             };
 
 
@@ -122,7 +128,8 @@ namespace ArchApp.ViewModels
                 Ulke = new SelectList(db.Ulkeler.ToList(), "Id", "Dil"),
                 Kategori = new SelectList(db.Kategoriler.Where(c => c.NeKategorisi == 1), "Id", "Adi"),
                 EntityName = "Kitap",
-                PViewName = "~/Views/Shared/_KitapPartial.cshtml"
+                PViewName = "~/Views/Shared/_KitapPartial.cshtml",
+                
             };
 
             Yazar yazar = new Yazar();
