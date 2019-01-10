@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ArchApp.Context;
+using ArchApp.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,17 +12,19 @@ namespace ArchApp.Entities
     [Table("Kitaplar")]
     public class Kitap : EntityBase
     {
-        [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required, StringLength(100),Display(Name ="Başlık")]
+        [StringLength(50), Display(Name = "Kitap Ref No")]
+        public string KitapRefNo { get; set; }
+        [Required, StringLength(100), Display(Name = "Başlık")]
         public string Baslik { get; set; }
         [StringLength(100), Display(Name = "Alt Başlık")]
         public string AltBaslik { get; set; }
-        [StringLength(25), Display(Name = "Çeviren")]
+        [StringLength(50), Display(Name = "Çeviren")]
         public string Ceviren { get; set; }
         [StringLength(75), Display(Name = "Yayın Evi")]
         public string YayinEvi { get; set; }        //Basılı Yayın ise
-        [Required,StringLength(25), Display(Name = "Yayın Yeri")]
+        [Required, StringLength(25), Display(Name = "Yayın Yeri")]
         public string YayinYeri { get; set; }       //Basılı Yayın ise      
         [Required, Display(Name = "Bası")]
         public int Basi { get; set; }
@@ -39,6 +43,40 @@ namespace ArchApp.Entities
             Yazarlar = new List<Yazar>();
             Tags = new List<Tag>();
 
-    }
+        }
+        private static string RefNoUret()
+        {
+            using (DbContextApp db = new DbContextApp())
+            {
+                
+                int id = db.Kitaplar.OrderByDescending(c => c.Id).FirstOrDefault().Id;
+                id = id + 1;
+                string kitapRefNo = "ktp" + id.ToString();
+                return kitapRefNo;
+            }
+           
+          
+
+        }
+        public int KitapKayıt(Kitap kitap)
+        {
+            DbContextApp db = new DbContextApp();
+            ViewModel vm = new ViewModel();
+            Kategori kategori = new Kategori();
+            Yazar yazar = new Yazar();
+
+            kitap.Yazarlar.RemoveAll(c => string.IsNullOrEmpty(c.Adi));
+            kitap.Tags.RemoveAll(c => string.IsNullOrEmpty(c.Etiket));
+
+            AltKategori altKategori = db.AltKategoriler.FirstOrDefault(c => c.Id == kitap.AltKategoriId);
+            kitap.AltKategori = altKategori;
+
+            kitap.KitapRefNo = RefNoUret();
+            //Yapılacak - Bu Kitap başlığından var emin misiniz? 
+            db.Kitaplar.Add(kitap);
+            int saveChangesResult = db.SaveChanges();
+            return saveChangesResult;
+        }
+      
     }
 }

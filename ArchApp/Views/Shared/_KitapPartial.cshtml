@@ -3,11 +3,11 @@
 @using PagedList.Mvc
 @model ViewModel
 
-<style>
+@*<style>
     .datepicker {
         z-index: 9999 !important;
     }
-</style>
+</style>*@
 
 <script>
     var viewBag = "@Model.IsEdit"
@@ -18,6 +18,28 @@
 
     });
 </script>
+
+<script>
+    $(document).ready(function () {
+        $("#modalKitap").on("hidden.bs.modal", function(){
+           window.location.href = '/Home/Index/'
+        });
+    });
+</script>
+
+@*<script>
+    $(document).ready(function()
+    {
+        $("#mod_cls").click(function () {
+            
+            $("#modalKitap").find("input").val('');
+            $("#modalKitap").find("select").val('');
+            })
+           
+        
+    });
+</script>*@
+
 @*<script>
         $(document).ready(function(){
             $("#addYazar").click(function(){
@@ -70,65 +92,6 @@
     </script>*@
 
 
-@*<script>
-    function sortTable(n) {
-        var table, rows, switching, i, x, y, shouldSwitch, dir, deneme, switchcount = 0;
-        table = document.getElementById("DataTables_Table_0");
-        switching = true;
-
-        // Set the sorting direction to ascending:
-        dir = "asc";
-        /* Make a loop that will continue until
-        no switching has been done: */
-        while (switching) {
-            // Start by saying: no switching is done:
-            switching = false;
-            rows = table.rows;
-            /* Loop through all table rows (except the
-            first, which contains table headers): */
-            for (i = 1; i < (rows.length - 1) ; i++) {
-                // Start by saying there should be no switching:
-                shouldSwitch = false;
-                /* Get the two elements you want to compare,
-                one from current row and one from the next: */
-                x = rows[i].getElementsByTagName("TD")[n];
-                y = rows[i + 1].getElementsByTagName("TD")[n];
-                /* Check if the two rows should switch place,
-                based on the direction, asc or desc: */
-                if (dir == "asc") {
-
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        // If so, mark as a switch and break the loop:
-                        shouldSwitch = true;
-
-                        break;
-                    }
-                } else if (dir == "desc") {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                        // If so, mark as a switch and break the loop:
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldSwitch) {
-                /* If a switch has been marked, make the switch
-                and mark that a switch has been done: */
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-                // Each time a switch is done, increase this count by 1:
-                switchcount++;
-            } else {
-                /* If no switching has been done AND the direction is "asc",
-                set the direction to "desc" and run the while loop again. */
-                if (switchcount == 0 && dir == "asc") {
-                    dir = "desc";
-                    switching = true;
-                }
-            }
-        }
-    }
-</script>*@
 
 <script>
     function AltKategoriDoldur() {
@@ -150,33 +113,63 @@
 </script>
 
 <script>
-    var i = 1;
+    var i = 0;
+    var modelIsEdit = "@Model.IsEdit";
+     if (modelIsEdit == "True")
+             {
+                 i = @Model.Kitap.Yazarlar.Where(c => !string.IsNullOrEmpty(c.Adi)).Count();
+         i = i - 1;
+             }
 
     $(document).ready(function () {
         $("#addYazar").click(function () {
             //document.getElementById("yAdi1").style.display = '';
 
-            if (i != 10) {
-                document.getElementById(i).style.display = '';
+
+            if (i < 9) {
                 i = i + 1;
+                document.getElementById(i).style.display = '';
+                
             }
 
-        })
+        });
+        $("#remYazar").click(function () {
+            if (i > 0) {
+                
+                document.getElementById(i).style.display = 'None';
+                document.getElementById(i+10).value = '';
+                i = i - 1;
+            }
+        });
     })
 </script>
 <script>
     var z = 100;
-
+      var modelIsEdit = "@Model.IsEdit";
+     if (modelIsEdit == "True")
+             {
+         z = @Model.Kitap.Tags.Where(c => !string.IsNullOrEmpty(c.Etiket)).Count();
+         z = 100 + (z - 1);
+             }
     $(document).ready(function () {
         $("#addTag").click(function () {
             //document.getElementById("yAdi1").style.display = '';
 
-            if (z != 110) {
-                document.getElementById(z).style.display = '';
+            if (z < 109) {
                 z = z + 1;
+                document.getElementById(z).style.display = '';
+
             }
 
-        })
+        });
+        $("#remTag").click(function () {
+            if (z > 100) {
+
+                document.getElementById(z).style.display = 'None';
+                document.getElementById(z + 10).value = '';
+                z = z - 1;
+            }
+        });
     })
 </script>
 @if (Model.Notification != null)
@@ -200,29 +193,28 @@
         <div class="modal-content">
             <div class="modal-header text-center">
                 <h4 class="modal-title w-100 font-weight-bold">@Model.EntityName</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button"  id="mod_cls" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            @using (Html.BeginForm("DuzenleKitap", "Repo", FormMethod.Post))
+            @using (Html.BeginForm("DuzenleKitap", "Repo", FormMethod.Post, new {id="form" }))
             {
                 @Html.AntiForgeryToken()
                 <div class="modal-body mx-3">
                     <div class="col-sm-6">
                         <div class="md-form mb-5" style="display:none">
-
+                            @Html.TextBoxFor(c => c.Kitap.KitapRefNo, new { @class = "form-control validate" })
+                        </div>
+                        <div class="md-form mb-5" style="display:none">
                             @Html.TextBoxFor(c => c.Kitap.Id, new { @class = "form-control validate" })
-
-
                         </div>
                         <div class="md-form mb-5">
                             @Html.LabelFor(c => c.Kitap.Baslik)
-                            @Html.TextBoxFor(c => c.Kitap.Baslik, new { @class = "form-control validate" })
+                            @Html.TextBoxFor(c => c.Kitap.Baslik, new { @class = "form-control validate",@id="baslik" })
 
                             @*<label data-error="wrong" data-success="right" for="form29">Başlık</label>
                                 <input type="email" id="form29" class="form-control validate">*@
                         </div>
-
                         <div class="md-form mb-5">
                             @Html.LabelFor(c => c.Kitap.AltBaslik)
                             @Html.TextBoxFor(c => c.Kitap.AltBaslik, new { @class = "form-control validate" })
@@ -263,17 +255,29 @@
 
                         @for (int i = 1; i < Model.Kitap.Yazarlar.Count; i++)
                         {
-                            <div class="md-form mb-5" id=@i style="display: none;">
-                                @Html.Label("Yazar Adı")
-                                @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Adi, new { @class = "form-control validate" })
+                            if (!string.IsNullOrEmpty(Model.Kitap.Yazarlar[i].Adi))
+                            {
+                                <div class="md-form mb-5" id=@i>
+                                    @Html.Label("Yazar Adı")
+                                    @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Adi, new { @class = "form-control validate",@id=i+10 })
 
-                            </div>
-                            @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Id, new { @class = "form-control validate", @style = "display: none;" })
+                                </div>
+                                @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Id, new { @class = "form-control validate", @style = "display: none;" })
+                            }
+                            else
+                            {
+                                <div class="md-form mb-5" id=@i style="display: none;">
+                                    @Html.Label("Yazar Adı")
+                                    @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Adi, new { @class = "form-control validate", @id=i+10 })
+
+                                </div>
+                                @Html.TextBoxFor(c => c.Kitap.Yazarlar[i].Id, new { @class = "form-control validate", @style = "display: none;" })
+                            }
+
                         }
 
-
-
                         <button type="button" id="addYazar" class="btn btn-xs btn-success">+</button>
+                        <button type="button" id="remYazar" class="btn btn-xs btn-success">-</button>
 
 
                     </div>
@@ -349,18 +353,33 @@
                             @Html.TextBoxFor(c => c.Kitap.Tags[0].Id, new { @class = "form-control validate", @style = "display: none;" })
 
                         </div>
-
                         @for (int z = 1; z < Model.Kitap.Tags.Count; z++)
                         {
-                            <div class="md-form mb-5" id=@(z+99) style="display: none;">
-                                @Html.Label("Etiket")
-                                @Html.TextBoxFor(c => c.Kitap.Tags[z].Etiket, new { @class = "form-control validate" })
+                            if (!string.IsNullOrEmpty(Model.Kitap.Tags[z].Etiket))
+                            {
+                                <div class="md-form mb-5" id=@(z+100)>
+                                    @Html.Label("Etiket")
+                                    @Html.TextBoxFor(c => c.Kitap.Tags[z].Etiket, new { @class = "form-control validate", @id=z+110 })
 
-                            </div>
-                            @Html.TextBoxFor(c => c.Kitap.Tags[z].Id, new { @class = "form-control validate", @style = "display: none;" })
+                                </div>
+                                @Html.TextBoxFor(c => c.Kitap.Tags[z].Id, new { @class = "form-control validate", @style = "display: none;" })
+                            }
+                            else
+                            {
+                                <div class="md-form mb-5" id=@(z+100) style="display: none;">
+                                    @Html.Label("Etiket")
+                                    @Html.TextBoxFor(c => c.Kitap.Tags[z].Etiket, new { @class = "form-control validate", @id = z + 110 })
+
+                                </div>
+                                @Html.TextBoxFor(c => c.Kitap.Tags[z].Id, new { @class = "form-control validate", @style = "display: none;" })
+                            }
+
                         }
+                     
 
                         <button type="button" id="addTag" class="btn btn-xs btn-success">+</button>
+                        <button type="button" id="remTag" class="btn btn-xs btn-success">-</button>
+                        
                     </div>
 
                     @*<div class="md-form">
@@ -383,7 +402,7 @@
                     </div>
                 }
 
-            }
+            
             }
 
         </div>
@@ -393,9 +412,8 @@
 
 <div>
     <button id="trigger" class="btn btn-success btn-rounded mb-4" data-toggle="modal" data-target="#modalKitap">Yeni @Model.EntityName<div></div></button>
-    @*<button type="button" id="myBtn" data-toggle="modal" style="display: none;" data-target="#modalKitap"></button>*@
+
 </div>
-<br />
 
 
 
@@ -430,18 +448,13 @@
                     <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
 
                         <div>
-                            @using (Html.BeginForm("Search", "Home", FormMethod.Post))
+                            @using (Html.BeginForm("KitapFilter", "Home", FormMethod.Post))
                             {
                                 @Html.AntiForgeryToken()
                                 <div id="DataTables_Table_0_filter" class="dataTables_filter">
-                                    @if (!string.IsNullOrEmpty(Model.CurrentPrefix))
-                                    {
-                                        <label>Search:<input id="searchBox" name="prefix" type="search" value=@Model.CurrentPrefix class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
-                                    }
-                                    else
-                                    {
-                                        <label>Search:<input id="searchBox" name="prefix" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
-                                    }
+
+                                    <label>Search:<input id="searchBox" name="prefix" type="search" class="form-control input-sm data-search" placeholder="" aria-controls="DataTables_Table_0"></label>
+
                                     <button name="entity" type="submit" value="kitap" class="btn btn-xs btn-dark">Ara</button>
                                 </div>
                             }
@@ -449,17 +462,27 @@
                         <table class="table table-hover dataTable no-footer" data-table="table-button" data-buttons="['copy', 'csv', 'excel', 'pdf', 'print']" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info">
                             <thead>
                                 <tr role="row">
-                                  <th class="sorting">@Html.ActionLink("Başlık", "Search", "Home", new { sortOrder = Model.BaslikSortPram??"Baslik_Descending", entity = "kitap", currentPrefix=Model.CurrentPrefix },null)</th>
+                                    <th >@Html.ActionLink("Ref No", "KitapFilter", "Home", new { style = "width: 250px;" })</th>
+                                    <th class="sorting">@Html.ActionLink("Başlık", "KitapFilter", "Home", new { sortOrder = Model.BaslikSortPram ?? "Baslik_Descending", entity = "kitap", prefix = Model.CurrentPrefix, pageNumber = Model.CurrentPageNumber }, new { style = "width: 250px;" })</th>
                                     @*<th class="sorting" id="sortTable(0)" onclick="sortTable(0)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 191px;" aria-sort="descending">Başlık</th>*@
-                                    <th class="sorting" id="sortTable(1)" onclick="sortTable(1)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 185px;">Yazar</th>
-                                    <th class="sorting" id="sortTable(2)" onclick="sortTable(2)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 171px;">Çeviren</th>
-                                    <th class="sorting" id="sortTable(3)" onclick="sortTable(3)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 159px;">Yayın Yeri</th>
-                                    <th class="sorting" id="sortTable(4)" onclick="sortTable(4)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 86px;">Yayın Yılı</th>
-                                    <th class="sorting" id="sortTable(5)" onclick="sortTable(5)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Bası</th>
-                                    <th class="sorting" id="sortTable(6)" onclick="sortTable(6)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 124px;">Dili</th>
-                                    <th class="sorting" id="sortTable(7)" onclick="sortTable(7)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Türü</th>
-                                    <th class="sorting" id="sortTable(8)" onclick="sortTable(8)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Erişim Tarihi</th>
-                                    <th class="sorting" id="sortTable(9)" onclick="sortTable(9)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 124px;">İşlemler</th>
+                                    <th class="sorting">@Html.ActionLink("Yazar", "KitapFilter", "Home", new { sortOrder = Model.YazarSortPram ?? "Yazar_Descending", entity = "kitap", prefix = Model.CurrentPrefix, pageNumber = Model.CurrentPageNumber }, new { style = "width: 250px;" })</th>
+
+                                    <th >@Html.ActionLink("Yayın Yeri", "KitapFilter", "Home", new { style = "width: 250px;" })</th>
+                                    <th >@Html.ActionLink("Yayın Yılı", "KitapFilter", "Home", new { style = "width: 250px;" })</th>
+
+                                    <th class="sorting">@Html.ActionLink("Türü", "KitapFilter", "Home", new { sortOrder = Model.TurSortPram ?? "Tur_Descending", entity = "kitap", prefix = Model.CurrentPrefix, pageNumber = Model.CurrentPageNumber }, new { style = "width: 250px;" })</th>
+
+                                    <th style="width: 75px;">İşlemler</th>
+
+                                    @*<th class="sorting" id="sortTable(1)" onclick="sortTable(1)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 185px;">Yazar</th>
+                                        <th class="sorting" id="sortTable(2)" onclick="sortTable(2)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 171px;">Çeviren</th>
+                                        <th class="sorting" id="sortTable(3)" onclick="sortTable(3)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 159px;">Yayın Yeri</th>
+                                        <th class="sorting" id="sortTable(4)" onclick="sortTable(4)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 86px;">Yayın Yılı</th>
+                                        <th class="sorting" id="sortTable(5)" onclick="sortTable(5)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Bası</th>
+                                        <th class="sorting" id="sortTable(6)" onclick="sortTable(6)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 124px;">Dili</th>
+                                        <th class="sorting" id="sortTable(7)" onclick="sortTable(7)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Türü</th>
+                                        <th class="sorting" id="sortTable(8)" onclick="sortTable(8)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 157px;">Erişim Tarihi</th>
+                                        <th class="sorting" id="sortTable(9)" onclick="sortTable(9)" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 124px;">İşlemler</th>*@
                                 </tr>
 
                             </thead>
@@ -471,25 +494,13 @@
                                 {
                                     <tbody>
                                         <tr role="row" class="odd">
+                                            <td class="sorting">@item.KitapRefNo</td>
                                             <td class="sorting">@item.Baslik</td>
                                             <td>@item.Yazarlar.FirstOrDefault().Adi</td>
-                                            <td>@item.Ceviren</td>
                                             <td>@item.YayinYeri</td>
                                             <td>@item.YayinYili</td>
-                                            <td>@item.Basi</td>
-                                            <td>@item.Ulke.Dil</td>
                                             <td>@item.Tur.Adi</td>
-                                            <td>
-                                                @if (item.ErisimTarihi != null)
-                                                {
-                                                    @item.ErisimTarihi.Value.ToString("dd-MM-yyyy")
-                                                }
-                                                else
-                                                {
-                                                    @item.ErisimTarihi
-                                                }
 
-                                            </td>
                                             <td>
                                                 <a href="/Repo/DuzenleKitap/@item.Id"><i class="fa fa-cog fa-lg base-dark" aria-hidden="true"></i></a>
                                                 <a href="/Repo/DeletKitap/@item.Id" class="mrgn-l-sm"><i class="fa fa-times fa-lg text-danger" aria-hidden="true"></i></a>
@@ -513,7 +524,7 @@
                                 </ul>
                             </div>*@
                         <div class="pagedList">
-                            @Html.PagedListPager(Model.Kitaplar, pageNumber => Url.Action("Search", "Home", new { pageNumber, entity = "kitap", currentPrefix = Model.CurrentPrefix, currentSortOrder = Model.CurrentSortOrder }))
+                            @Html.PagedListPager(Model.Kitaplar, pageNumber => Url.Action("KitapFilter", "Home", new { pageNumber, entity = "kitap", prefix = Model.CurrentPrefix, sortOrder = Model.CurrentSortOrder }))
                         </div>
                     </div>
                 </div>

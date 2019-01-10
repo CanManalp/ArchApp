@@ -15,8 +15,11 @@ namespace ArchApp.ViewModels
         public string EntityName { get; set; }
         public string PViewName { get; set; }
         public string BaslikSortPram { get; set; }
+        public string YazarSortPram { get; set; }
+        public string TurSortPram { get; set; }
         public string CurrentSortOrder { get; set; }
         public string CurrentPrefix { get; set; }
+        public int? CurrentPageNumber { get; set; }
         public int? PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 4;
         public bool IsEdit { get; set; }
@@ -53,7 +56,7 @@ namespace ArchApp.ViewModels
                 Kategori = new SelectList(db.Kategoriler.Where(c => c.NeKategorisi == 1), "Id", "Adi"),
                 EntityName = "Kitap",
                 PViewName = "~/Views/Shared/_KitapPartial.cshtml",
-                BaslikSortPram = "Baslik_Ascending"
+                BaslikSortPram = "Baslik_Descending"
             };
             
             Yazar yazar = new Yazar();
@@ -109,6 +112,7 @@ namespace ArchApp.ViewModels
 
                 vm.Kitap.Tags.Add(etiket);
             }
+            var deneme = kitap.Yazarlar.Where(c => !string.IsNullOrEmpty(c.Adi)).Count();
 
             vm.EntityName = "Kitap";
             vm.PViewName = "~/Views/Shared/_KitapPartial.cshtml";

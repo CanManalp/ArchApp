@@ -18,46 +18,32 @@ namespace ArchApp.Controllers
         [HttpPost]
         public ActionResult AddKitap(Kitap kitap)
         {
-            DbContextApp db = new DbContextApp();
-            ViewModel vm = new ViewModel();
-            Kategori kategori = new Kategori();
-            Yazar yazar = new Yazar();
-
-            kitap.Yazarlar.RemoveAll(c => string.IsNullOrEmpty(c.Adi));
-            kitap.Tags.RemoveAll(c => string.IsNullOrEmpty(c.Etiket));
-
-            AltKategori altKategori = db.AltKategoriler.FirstOrDefault(c => c.Id == kitap.AltKategoriId);
-            kitap.AltKategori = altKategori;
-
-            //Yapılacak - Bu Kitap başlığından var emin misiniz? 
-            db.Kitaplar.Add(kitap);
-            int saveChangesResult = db.SaveChanges();
+            Kitap kitapEntity = new Kitap();
+            
+            int saveChangesResult = kitapEntity.KitapKayıt(kitap);
 
             if (saveChangesResult > 0)
             {
-
                 return RedirectToAction("RepoNotification", "Notification", new
                 {
-
                     notification = "Kayıt Başarılı",
                     alert = "alert alert-success"
                 });
-
             }
             else
             {
                 return RedirectToAction("RepoNotification", "Notification", new
                 {
-
                     notification = "Kayıt Başarısız",
                     alert = "alert alert-danger"
                 });
             }
 
-
             //return Json(new { success = true, responseText = " Sucessfully." }, JsonRequestBehavior.AllowGet);
             //return Json(new { vm, success = true, responseText = " Sucessfully." }, JsonRequestBehavior.AllowGet);
         }
+       
+
         public ActionResult DeletKitap(int id)
         {
             DbContextApp db = new DbContextApp();
@@ -68,10 +54,8 @@ namespace ArchApp.Controllers
 
             if (saveChangesResult > 0)
             {
-
                 return RedirectToAction("RepoNotification", "Notification", new
                 {
-
                     notification = "Kayıt Silindi",
                     alert = "alert alert-success"
                 });
@@ -81,7 +65,6 @@ namespace ArchApp.Controllers
             {
                 return RedirectToAction("RepoNotification", "Notification", new
                 {
-
                     notification = "Kayıt Silinemedi",
                     alert = "alert alert-danger"
                 });
@@ -100,7 +83,6 @@ namespace ArchApp.Controllers
         [HttpPost]
         public ActionResult DuzenleKitap(Kitap kitap)
         {
-
             kitap.Yazarlar.RemoveAll(c => string.IsNullOrEmpty(c.Adi));
             kitap.Tags.RemoveAll(c => string.IsNullOrEmpty(c.Etiket));
             List<Yazar> yeniYazarlar = kitap.Yazarlar.Where(c => c.Id == 0).ToList();
