@@ -14,7 +14,7 @@ namespace ArchApp.Controllers
         // GET: Home
         public ActionResult Index()
         {
-            ViewModel vm = new ViewModel();
+            KitapViewModel vm = new KitapViewModel();
 
             vm = vm.KitapMainPagePrep();
 
@@ -33,14 +33,14 @@ namespace ArchApp.Controllers
 
         public ActionResult Kitap()
         {
-            ViewModel vm = new ViewModel();
+            KitapViewModel vm = new KitapViewModel();
             vm = vm.KitapMainPagePrep();
 
             return View("~/Views/Home/index.cshtml", vm);
         }
 
         [HttpPost]
-        public ActionResult Kitap(ViewModel Vm)
+        public ActionResult Kitap(KitapViewModel Vm)
         {
             //Repository<Kitap> repoKitap = new Repository<Kitap>();
             //var Tblkitap = repoKitap.Get();
@@ -101,7 +101,7 @@ namespace ArchApp.Controllers
             const string Yazar_Descending = "Yazar_Descending";
             const string Tur_Ascending = "Tur_Ascending";
             const string Tur_Descending = "Tur_Descending";
-            ViewModel vm = new ViewModel();
+            KitapViewModel vm = new KitapViewModel();
 
             vm = vm.KitapSearchPagePrep();
 

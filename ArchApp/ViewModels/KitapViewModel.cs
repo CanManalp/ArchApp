@@ -10,29 +10,22 @@ using System.Web.Mvc;
 
 namespace ArchApp.ViewModels
 {
-    public class ViewModel : BaseModel
+    public class KitapViewModel : BaseModel
     {
-        public string EntityName { get; set; }
-        public string PViewName { get; set; }
+       
         public string BaslikSortPram { get; set; }
         public string YazarSortPram { get; set; }
-        public string TurSortPram { get; set; }
-        public string CurrentSortOrder { get; set; }
-        public string CurrentPrefix { get; set; }
-        public int? CurrentPageNumber { get; set; }
-        public int? PageNumber { get; set; } = 1;
-        public int PageSize { get; set; } = 4;
-        public bool IsEdit { get; set; }
+        public string TurSortPram { get; set; }       
         public Kitap Kitap { get; set; }
         public IPagedList<Kitap> Kitaplar { get; set; }
         public SelectList Tur { get; set; }
-        public SelectList Ulke { get; set; }
+ 
         public SelectList Kategori { get; set; }
         public SelectList AltKategori { get; set; }
         //public Yazar Yazar { get; set; }
         //public List<Yazar> Yazarlar { get; set; }
 
-        public ViewModel()
+        public KitapViewModel()
         {
             //Yazar = new Yazar();
             Kitap = new Kitap();
@@ -41,13 +34,13 @@ namespace ArchApp.ViewModels
         }
 
 
-        public ViewModel KitapMainPagePrep()   //Kitap Eklerkenki dropdownları hazırlar, Tablodan kitap listesini çeker, boş yazarları ve tagleri oluşturur
+        public KitapViewModel KitapMainPagePrep()   //Kitap Eklerkenki dropdownları hazırlar, Tablodan kitap listesini çeker, boş yazarları ve tagleri oluşturur
         {
             
             DbContextApp db = new DbContextApp();
             db.Database.CreateIfNotExists();
 
-            ViewModel vm = new ViewModel
+            KitapViewModel vm = new KitapViewModel
             {
 
                 Kitaplar = db.Kitaplar.OrderBy(c => c.Baslik).ToPagedList(PageNumber??1, PageSize),
@@ -77,7 +70,7 @@ namespace ArchApp.ViewModels
             return vm;
         }
 
-        public ViewModel KitapDuzenlePagePrep(int id)
+        public KitapViewModel KitapDuzenlePagePrep(int id)
         {
            
             Kitap kitap = new Kitap();
@@ -85,14 +78,14 @@ namespace ArchApp.ViewModels
             Tag etiket = new Tag();
             DbContextApp db = new DbContextApp();
             kitap = db.Kitaplar.Find(id);
-            ViewModel vm = new ViewModel
+            KitapViewModel vm = new KitapViewModel
             {
                 Kitaplar = db.Kitaplar.OrderBy(c => c.Baslik).ToPagedList(PageNumber?? 1, PageSize),
                 Kitap = kitap,
                 Tur = new SelectList(db.Turler.Where(c => c.NeTuru == 1), "Id", "Adi", kitap.TurId),     //Tur Dropdown
                 Ulke = new SelectList(db.Ulkeler.ToList(), "Id", "Dil"),     //Ülke Dropdown
                 Kategori = new SelectList(db.Kategoriler.Where(c => c.NeKategorisi == 1), "Id", "Adi", kitap.AltKategori.KategoriId),   //Kategori DropDown
-                AltKategori = new SelectList(db.AltKategoriler.Where(c => c.Id == kitap.AltKategoriId), "Id", "Adi", kitap.AltKategoriId),   //AltKategori DropDown
+                AltKategori = new SelectList(db.AltKategoriler.Where(c => c.KategoriId == kitap.AltKategori.KategoriId), "Id", "Adi", kitap.AltKategoriId),   //AltKategori DropDown
                 
             };
 
@@ -112,7 +105,7 @@ namespace ArchApp.ViewModels
 
                 vm.Kitap.Tags.Add(etiket);
             }
-            var deneme = kitap.Yazarlar.Where(c => !string.IsNullOrEmpty(c.Adi)).Count();
+           
 
             vm.EntityName = "Kitap";
             vm.PViewName = "~/Views/Shared/_KitapPartial.cshtml";
@@ -121,12 +114,12 @@ namespace ArchApp.ViewModels
 
         }
 
-        public ViewModel KitapSearchPagePrep()   //Kitap Eklerkenki dropdownları hazırlar, Tablodan kitap listesini çeker, boş yazarları ve tagleri oluşturur
+        public KitapViewModel KitapSearchPagePrep()   //Kitap Eklerkenki dropdownları hazırlar, Tablodan kitap listesini çeker, boş yazarları ve tagleri oluşturur
         {
             DbContextApp db = new DbContextApp();
            
 
-            ViewModel vm = new ViewModel
+            KitapViewModel vm = new KitapViewModel
             {
                 Tur = new SelectList(db.Turler.Where(c => c.NeTuru == 1), "Id", "Adi"),
                 Ulke = new SelectList(db.Ulkeler.ToList(), "Id", "Dil"),

@@ -1,0 +1,7 @@
+Eðer sisteminizde bir Exchange Server var ise böyle bir hata ile karþýlaþma oranýnýz yüksektir. Exchange Server gibi Active Directory ye baðlý bir ürünün olasý hata uyarýlarýndandýr. Tabiki bu Exchange Server ýn bi suçu deðildir. Düzenli çalýþan sistemler için belki hiç görüþmeyecek bir hatadýr . Ancak kobi vb þirket yapýlarýnda görelen bu hatanýný çözüm yollarý aþaðýdaki gibidir ;
+
+Exchange Server Makinesinin dns leri yanlýþtýr
+
+Exchange Server Makinesi üzerine outlook 2007 kurmuþsunuzudr
+
+eðer sorun bunlardan biri deðil ise kesin çözüm için administrator veya bu hatayý aldýðýnýz hesap tan farklý bir hesap ileexchange server üzerinde oturum açýn ve diðer admin hesabýnýn profilini silin sorun düzelecektir.

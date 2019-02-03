@@ -12,7 +12,8 @@ namespace ArchApp.Entities
         public string Notlar { get; set; }
         [StringLength(75)]
         public string WebAdresi { get; set; }
-
+        public string AttachedFileName { get; set; }
+        public string AttachedFilePath { get; set; }
         public DateTime? ErisimTarihi { get; set; }
 
         //public int UlkeId { get; set; }

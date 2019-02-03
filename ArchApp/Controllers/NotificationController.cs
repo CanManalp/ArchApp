@@ -15,7 +15,7 @@ namespace ArchApp.Controllers
         public ActionResult RepoNotification(string notification, string alert)
         {
 
-            ViewModel vm = new ViewModel();
+            KitapViewModel vm = new KitapViewModel();
             vm = vm.KitapMainPagePrep();
             vm.Notification = notification;
             vm.Alert = alert;

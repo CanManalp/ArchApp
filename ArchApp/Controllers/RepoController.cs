@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -16,14 +17,43 @@ namespace ArchApp.Controllers
     public class RepoController : Controller
     {
         [HttpPost]
-        public ActionResult AddKitap(Kitap kitap)
+        public ActionResult AddKitap(KitapViewModel kvm)
         {
             Kitap kitapEntity = new Kitap();
-            
-            int saveChangesResult = kitapEntity.KitapKayıt(kitap);
+
+            if (kvm.File != null && kvm.File.ContentLength > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                var allowedFileSize = 210000000;
+                var checkextension = Path.GetExtension(kvm.File.FileName).ToLower();
+                if (!allowedExtensions.Contains(checkextension))
+                {
+
+                    return RedirectToAction("RepoNotification", "Notification", new
+                    {
+                        notification = "Eklenen Dosya Uzantısı Hatalı",
+                        alert = "alert alert-danger"
+                    });
+                }
+                if (kvm.File.ContentLength > allowedFileSize)
+                {
+                    return RedirectToAction("RepoNotification", "Notification", new
+                    {
+                        notification = "Dosya Boyutu İzin Verilen Sınırın Üzerinde",
+                        alert = "alert alert-danger"
+                    });
+                }
+                kvm.Kitap.AttachedFileName = Path.GetFileName(kvm.File.FileName);
+                kvm.Kitap.AttachedFilePath = Path.Combine(Server.MapPath("~/UploadedFiles/"), kvm.Kitap.AttachedFileName);
+                kvm.File.SaveAs(kvm.Kitap.AttachedFilePath);
+            }
+
+            int saveChangesResult = kitapEntity.KitapKayıt(kvm.Kitap);
 
             if (saveChangesResult > 0)
             {
+
+
                 return RedirectToAction("RepoNotification", "Notification", new
                 {
                     notification = "Kayıt Başarılı",
@@ -42,7 +72,7 @@ namespace ArchApp.Controllers
             //return Json(new { success = true, responseText = " Sucessfully." }, JsonRequestBehavior.AllowGet);
             //return Json(new { vm, success = true, responseText = " Sucessfully." }, JsonRequestBehavior.AllowGet);
         }
-       
+
 
         public ActionResult DeletKitap(int id)
         {
@@ -72,33 +102,59 @@ namespace ArchApp.Controllers
         }
         public ActionResult DuzenleKitap(int id)
         {
-            ViewModel vm = new ViewModel();
+            KitapViewModel vm = new KitapViewModel();
             vm = vm.KitapDuzenlePagePrep(id);
 
             return View("~/Views/Home/index.cshtml", vm);
         }
 
-      
+
 
         [HttpPost]
-        public ActionResult DuzenleKitap(Kitap kitap)
+        public ActionResult DuzenleKitap(KitapViewModel kvm)
         {
-            kitap.Yazarlar.RemoveAll(c => string.IsNullOrEmpty(c.Adi));
-            kitap.Tags.RemoveAll(c => string.IsNullOrEmpty(c.Etiket));
-            List<Yazar> yeniYazarlar = kitap.Yazarlar.Where(c => c.Id == 0).ToList();
-            List<Tag> yeniEtiketler = kitap.Tags.Where(c => c.Id == 0).ToList();
-            kitap.Yazarlar.RemoveAll(c => c.Id == 0);
-            kitap.Tags.RemoveAll(c => c.Id == 0);
+            kvm.Kitap.Yazarlar.RemoveAll(c => string.IsNullOrEmpty(c.Adi));
+            kvm.Kitap.Tags.RemoveAll(c => string.IsNullOrEmpty(c.Etiket));
+            List<Yazar> yeniYazarlar = kvm.Kitap.Yazarlar.Where(c => c.Id == 0).ToList();
+            List<Tag> yeniEtiketler = kvm.Kitap.Tags.Where(c => c.Id == 0).ToList();
+            kvm.Kitap.Yazarlar.RemoveAll(c => c.Id == 0);
+            kvm.Kitap.Tags.RemoveAll(c => c.Id == 0);
+
+            if (kvm.File != null && kvm.File.ContentLength > 0)
+            {
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                int allowedFileSize = 210000000;
+                var checkextension = Path.GetExtension(kvm.File.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(checkextension))
+                {
+                    kvm = kvm.KitapDuzenlePagePrep(kvm.Kitap.Id);
+                    ModelState.AddModelError("custom error", "Dosya Uzantısı Hatalı");
+                    return View("~/Views/Home/index.cshtml", kvm);
+                }
+
+                if (kvm.File.ContentLength > allowedFileSize)
+                {
+                    kvm = kvm.KitapDuzenlePagePrep(kvm.Kitap.Id);
+                    ModelState.AddModelError("custom error", "Dosya Boyutu İzin Verilen Sınırın Üzerinde");
+                    return View("~/Views/Home/index.cshtml", kvm);
+                  
+                }
+
+                kvm.Kitap.AttachedFileName = Path.GetFileName(kvm.File.FileName);
+                kvm.Kitap.AttachedFilePath = Path.Combine(Server.MapPath("~/UploadedFiles/"), kvm.Kitap.AttachedFileName);
+                kvm.File.SaveAs(kvm.Kitap.AttachedFilePath);
+            }
 
             //Yapılacak - Bu Kitap başlığından var emin misiniz?    
 
             Kitap duzenlenenKitap = new Kitap();
             using (DbContextApp db = new DbContextApp())
             {
-                duzenlenenKitap = db.Kitaplar/*.AsNoTracking()*/.FirstOrDefault(c => c.Id == kitap.Id);
+                duzenlenenKitap = db.Kitaplar/*.AsNoTracking()*/.FirstOrDefault(c => c.Id == kvm.Kitap.Id);
 
-                AltKategori altKategori = db.AltKategoriler.FirstOrDefault(c => c.Id == kitap.AltKategoriId);
-                kitap.AltKategori = altKategori;
+                AltKategori altKategori = db.AltKategoriler.FirstOrDefault(c => c.Id == kvm.Kitap.AltKategoriId);
+                kvm.Kitap.AltKategori = altKategori;
             }
 
             if (duzenlenenKitap != null)
@@ -106,45 +162,46 @@ namespace ArchApp.Controllers
 
                 using (DbContextApp db = new DbContextApp())
                 {
-                    foreach (var item in kitap.Yazarlar)
+                    foreach (var item in kvm.Kitap.Yazarlar)
                     {
-                        item.KitapId = kitap.Id;
+                        item.KitapId = kvm.Kitap.Id;
 
                         db.Entry(item).State = EntityState.Modified;
                     }
-                    foreach (var item in kitap.Tags)
+                    foreach (var item in kvm.Kitap.Tags)
                     {
-                        item.KitapId = kitap.Id;
+                        item.KitapId = kvm.Kitap.Id;
 
                         db.Entry(item).State = EntityState.Modified;
                     }
 
 
-                    db.Entry(kitap).State = EntityState.Modified;
+                    db.Entry(kvm.Kitap).State = EntityState.Modified;
 
-                    if (yeniYazarlar.Count>0)
+                    if (yeniYazarlar.Count > 0)
                     {
                         foreach (var item in yeniYazarlar)
                         {
-                            item.KitapId = kitap.Id;
+                            item.KitapId = kvm.Kitap.Id;
                             db.Yazarlar.Add(item);
                         }
 
                     }
-                    if (yeniEtiketler.Count>0)
+                    if (yeniEtiketler.Count > 0)
                     {
                         foreach (var item in yeniEtiketler)
                         {
-                            item.KitapId = kitap.Id;
+                            item.KitapId = kvm.Kitap.Id;
                             db.Etiketler.Add(item);
                         }
 
                     }
-                  
+
                     int saveChangesResult = db.SaveChanges();
 
                     if (saveChangesResult > 0)
                     {
+
                         return RedirectToAction("RepoNotification", "Notification", new
                         {
                             notification = "Kayıt Düzenlendi",

@@ -61,7 +61,7 @@ namespace ArchApp.Entities
         public int KitapKayıt(Kitap kitap)
         {
             DbContextApp db = new DbContextApp();
-            ViewModel vm = new ViewModel();
+            KitapViewModel vm = new KitapViewModel();
             Kategori kategori = new Kategori();
             Yazar yazar = new Yazar();
 
