@@ -974,6 +974,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\FileActions.cs" />
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\Search.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -1041,6 +1042,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="UploadedFiles\" />
+    <Folder Include="Views\FileCheck\" />
     <Folder Include="Views\Notification\" />
     <Folder Include="Views\Repo\" />
     <Folder Include="Views\Upload\" />

@@ -21,7 +21,7 @@
 
 <script>
     $(document).ready(function () {
-        $("#modalKitap").on("hidden.bs.modal", function(){
+        $("#modalKitap").on("hidden.bs.modal", function () {
             window.location.href = '/Home/Index/'
         });
     });
@@ -231,7 +231,7 @@
                         <div class="md-form mb-5">
                             @Html.LabelFor(c => c.Kitap.YayinEvi)
                             @Html.TextBoxFor(c => c.Kitap.YayinEvi, new { @class = "form-control validate" })
-                           
+
                         </div>
 
                         <div class="md-form mb-5">
@@ -285,23 +285,36 @@
                         <br />
 
                         <div class="md-form mb-5">
+                            @if (Model.IsAttached)
+                            {
+                                <a href="/Home/Download/@Model.Kitap.Id"> <i class="far fa-3x fa-file-alt"></i></a>
+                                <br />
+                                <br />
+                                <span>@Model.Kitap.AttachedFileName</span>
+                                <br />
+                                <a class="btn btn-success" href="/Repo/RemoveAttachment/@Model.Kitap.Id">Eki Kaldır </a>
 
-                            <label for="file">Dosya Ekle</label>
-                            <br />
-                            <label class="btn btn-success" for="file">
-                                @*@Html.TextBoxFor(c => c.File, new { type = "file", id = "file", name = "file", style = "display:none", onchange = "$('#upload-file-info').html(this.files[0].name" })*@
-                                <input class="form-control validate" id="file" name="file" type="file" style="display:none"
-                                    onchange="$('#upload-file-info').html(this.files[0].name)">
-                                Dosya Seçin
-                            </label>
-                            <br />
-                            <br />
-                            <span id="upload-file-info"></span>
+                            }
+                            else
+                            {
+                                <label for="file">Dosya Ekle</label>
+                                <br />
+                                <label class="btn btn-success" for="file">
+                                    @*@Html.TextBoxFor(c => c.File, new { type = "file", id = "file", name = "file", style = "display:none", onchange = "$('#upload-file-info').html(this.files[0].name" })*@
+                                    <input class="form-control validate" id="file" name="file" type="file" style="display:none"
+                                           onchange="$('#upload-file-info').html(this.files[0].name)">
+                                    Dosya Seçin
+                                </label>
 
-                            @Html.ValidationMessage("custom error")
+                                <br />
+                                <br />
+                                <span id="upload-file-info"></span>
+
+
+                            }
+                            <div id="dosyaValMes"> @Html.ValidationMessage("custom error", new { @class = "text-danger" })</div>
                         </div>
-
-                    </div>
+                        </div>
                     <div class="col-sm-6">
 
                         <div class="md-form mb-5">

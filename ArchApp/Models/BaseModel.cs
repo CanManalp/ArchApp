@@ -20,6 +20,7 @@ namespace ArchApp.Models
         public int? PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 4;
         public bool IsEdit { get; set; }
+        public bool IsAttached { get; set; }
         public SelectList Ulke { get; set; }
         
         //[RegularExpression(@"([a-zA-Z0-9()\s_\\.\-:!@#$%^&])+(.png|.jpg|.gif|.bmp|.tiff|.PNG|.JPG|.GIF|.BMP|.TIFF|.pdf|.doc|.docx|.rtf|.txt|.odt)$", ErrorMessage = "Dosya Uzantısı Hatalı")]

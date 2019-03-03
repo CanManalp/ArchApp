@@ -2,7 +2,9 @@
 using ArchApp.Entities;
 using ArchApp.ViewModels;
 using PagedList;
+using System;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 
 namespace ArchApp.Controllers
@@ -29,6 +31,28 @@ namespace ArchApp.Controllers
 
 
             return Json(altKategoriler, JsonRequestBehavior.AllowGet);
+        }
+        public FileResult Download(int id)
+        {
+            DbContextApp db = new DbContextApp();
+            Kitap kitap = db.Kitaplar.Find(id);
+
+            //string filename = "File.pdf";
+            //string filepath = AppDomain.CurrentDomain.BaseDirectory + "/Path/To/File/" + filename;
+            byte[] filedata = System.IO.File.ReadAllBytes(kitap.AttachedFilePath);
+            string contentType = MimeMapping.GetMimeMapping(kitap.AttachedFilePath);
+
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = kitap.AttachedFileName,
+                Inline = true,
+            };
+
+            Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(filedata, contentType);
+
+            
         }
 
         public ActionResult Kitap()

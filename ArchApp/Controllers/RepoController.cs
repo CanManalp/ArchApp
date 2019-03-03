@@ -1,5 +1,6 @@
 ﻿using ArchApp.Context;
 using ArchApp.Entities;
+using ArchApp.Models;
 using ArchApp.Repository;
 using ArchApp.ViewModels;
 using System;
@@ -113,6 +114,15 @@ namespace ArchApp.Controllers
         [HttpPost]
         public ActionResult DuzenleKitap(KitapViewModel kvm)
         {
+            Kitap duzenlenenKitap = new Kitap();
+            using (DbContextApp db = new DbContextApp())
+            {
+                duzenlenenKitap = db.Kitaplar/*.AsNoTracking()*/.Find(kvm.Kitap.Id);
+
+                AltKategori altKategori = db.AltKategoriler.FirstOrDefault(c => c.Id == kvm.Kitap.AltKategoriId);
+                kvm.Kitap.AltKategori = altKategori;
+            }
+
             kvm.Kitap.Yazarlar.RemoveAll(c => string.IsNullOrEmpty(c.Adi));
             kvm.Kitap.Tags.RemoveAll(c => string.IsNullOrEmpty(c.Etiket));
             List<Yazar> yeniYazarlar = kvm.Kitap.Yazarlar.Where(c => c.Id == 0).ToList();
@@ -120,42 +130,37 @@ namespace ArchApp.Controllers
             kvm.Kitap.Yazarlar.RemoveAll(c => c.Id == 0);
             kvm.Kitap.Tags.RemoveAll(c => c.Id == 0);
 
+            
+
             if (kvm.File != null && kvm.File.ContentLength > 0)
             {
-                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
-                int allowedFileSize = 210000000;
-                var checkextension = Path.GetExtension(kvm.File.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(checkextension))
+                FileActions fileAct = new FileActions();
+                fileAct = fileAct.FileCheck(kvm.File);
+                if (fileAct.FileCheckRes)
+                {
+                    kvm.Kitap.AttachedFileName = Path.GetFileName(kvm.File.FileName);
+                    kvm.Kitap.AttachedFilePath = Path.Combine(Server.MapPath("~/UploadedFiles/"), kvm.Kitap.AttachedFileName);
+                    kvm.File.SaveAs(kvm.Kitap.AttachedFilePath);
+                }
+                else
                 {
                     kvm = kvm.KitapDuzenlePagePrep(kvm.Kitap.Id);
-                    ModelState.AddModelError("custom error", "Dosya Uzantısı Hatalı");
+                    ModelState.AddModelError("custom error", fileAct.FileCheckResult);
                     return View("~/Views/Home/index.cshtml", kvm);
                 }
-
-                if (kvm.File.ContentLength > allowedFileSize)
-                {
-                    kvm = kvm.KitapDuzenlePagePrep(kvm.Kitap.Id);
-                    ModelState.AddModelError("custom error", "Dosya Boyutu İzin Verilen Sınırın Üzerinde");
-                    return View("~/Views/Home/index.cshtml", kvm);
-                  
-                }
-
-                kvm.Kitap.AttachedFileName = Path.GetFileName(kvm.File.FileName);
-                kvm.Kitap.AttachedFilePath = Path.Combine(Server.MapPath("~/UploadedFiles/"), kvm.Kitap.AttachedFileName);
-                kvm.File.SaveAs(kvm.Kitap.AttachedFilePath);
             }
+            else
+            {
+                if (duzenlenenKitap.AttachedFileName != null && duzenlenenKitap.AttachedFilePath != null)
+                {
+                    kvm.Kitap.AttachedFileName = duzenlenenKitap.AttachedFileName;
+                    kvm.Kitap.AttachedFilePath = duzenlenenKitap.AttachedFilePath;
+                }
+            }      
 
             //Yapılacak - Bu Kitap başlığından var emin misiniz?    
 
-            Kitap duzenlenenKitap = new Kitap();
-            using (DbContextApp db = new DbContextApp())
-            {
-                duzenlenenKitap = db.Kitaplar/*.AsNoTracking()*/.FirstOrDefault(c => c.Id == kvm.Kitap.Id);
-
-                AltKategori altKategori = db.AltKategoriler.FirstOrDefault(c => c.Id == kvm.Kitap.AltKategoriId);
-                kvm.Kitap.AltKategori = altKategori;
-            }
+            
 
             if (duzenlenenKitap != null)
             {
@@ -240,6 +245,38 @@ namespace ArchApp.Controllers
             //}
 
             return RedirectToAction("Index", "Home");
+        }
+        public ActionResult RemoveAttachment(int id)
+        {
+            using (DbContextApp db = new DbContextApp())
+            {
+                Kitap duzenlenenKitap = db.Kitaplar.Find(id);
+                duzenlenenKitap.AttachedFileName = null;
+                duzenlenenKitap.AttachedFilePath = null;
+                db.Entry(duzenlenenKitap).State = EntityState.Modified;
+                int saveChangesResult = db.SaveChanges();
+
+                if (saveChangesResult > 0)
+                {
+
+                    KitapViewModel kvm = new KitapViewModel();
+                    kvm = kvm.KitapDuzenlePagePrep(id);
+
+                    return View("~/Views/Home/index.cshtml", kvm);
+                }
+                else
+                {
+                    return RedirectToAction("RepoNotification", "Notification", new
+                    {
+                        notification = "Ek Kaldırılamadı, Lütfen Tekrar Deneyiniz",
+                        alert = "alert alert-danger"
+                    });
+                }
+            }
+            
+
+           
+            
         }
     }
 }

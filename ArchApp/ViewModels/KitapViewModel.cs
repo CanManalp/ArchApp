@@ -105,7 +105,10 @@ namespace ArchApp.ViewModels
 
                 vm.Kitap.Tags.Add(etiket);
             }
-           
+            if (vm.Kitap.AttachedFilePath != null && vm.Kitap.AttachedFileName != null)
+            {
+                vm.IsAttached = true;
+            }
 
             vm.EntityName = "Kitap";
             vm.PViewName = "~/Views/Shared/_KitapPartial.cshtml";
